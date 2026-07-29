@@ -56,17 +56,17 @@ python3 scripts/generate_ppt.py -i exp.md -o r.pptx --title "7.2 阶段汇报"
 ## Markdown 写法
 
 ```markdown
-# 7.2 人像多实例进度       ← 标题页（第一个 #）
+# 7.2 实验进度汇报         ← 标题页（第一个 #）
 
 ## 模型设计                ← ## 新建一页
 
-采用 Mask2Former（Swin-Large COCO 预训练）mmdet 框架
+采用 ViT-Large（ImageNet 预训练）
 
-在 Seg_data_39528 上 fine-tune，40K iter
+在内部数据集上 fine-tune，40K iter
 
 ### 评测口径               ← ### 当前页内粗体标题
 
-- 结果：**mIoU@0.5 = 0.974**  ← 粗体高亮
+- 结果：**Acc@0.5 = 0.974**   ← 粗体高亮
   - 同时惩罚漏检与误检          ← 次级 bullet
 
 ![可视化结果](result.png)       ← 嵌入图片
@@ -99,7 +99,7 @@ python3 scripts/generate_chart.py \
   --type bar \
   --data "单人:0.974,多人:0.935,val_2q:0.930" \
   --output chart.png \
-  --title "mIoU@0.5 对比"
+  --title "准确率对比"
 ```
 
 生成表格图：

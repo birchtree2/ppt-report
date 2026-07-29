@@ -78,13 +78,13 @@ python3 /path/to/ppt-report/scripts/generate_ppt.py -i my_exp.md -o my_report.pp
 ## Markdown 格式
 
 ```markdown
-# 7.2 人像多实例进度         ← 标题页（第一个 #）
+# 7.2 实验进度汇报           ← 标题页（第一个 #）
 
 ## 模型设计                  ← ## 新建幻灯片
 
-采用 Mask2Former（Swin-Large COCO instance 预训练）
+采用 ViT-Large（ImageNet 预训练）
 
-在 Seg_data_39528 上以 1024×1024 fine-tune，40K iter
+在内部数据集上以 1024×1024 fine-tune，40K iter
 
 ### 评测口径                 ← ### 同级内 L0 粗体标题
 
@@ -93,7 +93,7 @@ python3 /path/to/ppt-report/scripts/generate_ppt.py -i my_exp.md -o my_report.pp
 
 代码路径：实验记录/实验记录.md  ← 自动 Courier 字体
 
-**mIoU@0.5 = 0.974**        ← 粗体高亮关键数字
+**Acc@0.5 = 0.974**         ← 粗体高亮关键数字
 
 ![可视化](result.png)        ← 嵌入图片
 
@@ -115,7 +115,7 @@ python3 scripts/generate_chart.py \
   --type bar \
   --data "单人:0.974,多人:0.935,val_2q:0.930" \
   --output chart.png \
-  --title "mIoU@0.5 对比"
+  --title "准确率对比"
 ```
 
 ## 生成表格图
