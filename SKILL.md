@@ -91,7 +91,7 @@ python3 /path/to/ppt-report/scripts/generate_ppt.py -i my_exp.md -o my_report.pp
 - 预测实例与 GT 贪心匹配（IoU 0.5）
   - 同时惩罚漏检与误检       ← 次级 bullet
 
-代码路径：/home/notebook/code/REPRODUCE.md  ← 自动 Courier 字体
+代码路径：实验记录/实验记录.md  ← 自动 Courier 字体
 
 **mIoU@0.5 = 0.974**        ← 粗体高亮关键数字
 

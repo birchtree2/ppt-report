@@ -103,7 +103,7 @@ def _blank(prs):
     return prs.slides.add_slide(prs.slide_layouts[6])
 
 
-def title_slide(prs, main, presenter="杨培源"):
+def title_slide(prs, main, presenter=""):
     """Centered title slide with presenter name."""
     s = _blank(prs)
     tb = s.shapes.add_textbox(Emu(0), Emu(2000000), SLIDE_W, Emu(1500000))
@@ -214,7 +214,7 @@ def parse_md(path):
         if re.match(r"^# [^#]", s):       # # → title slide
             flush()
             cur = {"type": "title", "title": s[2:].strip(),
-                   "presenter": "杨培源", "bullets": [], "images": []}
+                   "presenter": "", "bullets": [], "images": []}
             continue
 
         if s == "---":                     # manual break
@@ -257,7 +257,7 @@ def parse_md(path):
 def generate(slides, prs):
     for s in slides:
         if s["type"] == "title":
-            title_slide(prs, s["title"], s.get("presenter", "杨培源"))
+            title_slide(prs, s["title"], s.get("presenter", ""))
         elif s["type"] == "content":
             content_slide(prs, s["title"], s.get("bullets", []), s.get("images", []))
 
@@ -267,6 +267,7 @@ def main():
     ap.add_argument("-i", "--input", required=True, help="输入的 Markdown 文件路径")
     ap.add_argument("-o", "--output", default="report.pptx", help="输出的 PPTX 文件路径")
     ap.add_argument("--title", default="", help="覆盖标题页的主标题")
+    ap.add_argument("--presenter", default="", help="报告人姓名（显示在标题页）")
     a = ap.parse_args()
 
     if not os.path.exists(a.input):
@@ -282,6 +283,10 @@ def main():
         for s in slides:
             if s["type"] == "title":
                 s["title"] = a.title
+    if a.presenter:
+        for s in slides:
+            if s["type"] == "title":
+                s["presenter"] = a.presenter
 
     prs = Presentation()
     prs.slide_width, prs.slide_height = SLIDE_W, SLIDE_H
