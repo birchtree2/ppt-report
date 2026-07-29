@@ -13,7 +13,7 @@ Usage:
   python3 scripts/generate_ppt.py -i experiments.md -o report.pptx
 """
 
-import argparse, os, re, sys
+import argparse, os, re, sys, datetime
 from pptx import Presentation
 from pptx.util import Pt, Emu
 from pptx.dml.color import RGBColor
@@ -120,6 +120,13 @@ def title_slide(prs, main, presenter="杨培源"):
     r2 = p2.add_run()
     r2.text = presenter
     set_font(r2, Pt(16))
+    # Date line (Chinese format)
+    tb3 = s.shapes.add_textbox(Emu(0), Emu(4450000), SLIDE_W, Emu(400000))
+    p3 = tb3.text_frame.paragraphs[0]
+    p3.alignment = 2
+    r3 = p3.add_run()
+    r3.text = datetime.date.today().strftime("%Y年%m月%d日")
+    set_font(r3, Pt(12))
 
 
 def content_slide(prs, title, bullets, images=None):
@@ -256,10 +263,10 @@ def generate(slides, prs):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Markdown → PPTX generator")
-    ap.add_argument("-i", "--input", required=True, help="Markdown file")
-    ap.add_argument("-o", "--output", default="report.pptx", help="Output PPTX path")
-    ap.add_argument("--title", default="", help="Override title slide")
+    ap = argparse.ArgumentParser(description="从 Markdown 实验记录生成 PPT 汇报")
+    ap.add_argument("-i", "--input", required=True, help="输入的 Markdown 文件路径")
+    ap.add_argument("-o", "--output", default="report.pptx", help="输出的 PPTX 文件路径")
+    ap.add_argument("--title", default="", help="覆盖标题页的主标题")
     a = ap.parse_args()
 
     if not os.path.exists(a.input):
