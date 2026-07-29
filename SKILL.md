@@ -11,113 +11,126 @@ description: >
 
 # PPT Report Skill
 
-Generates PowerPoint presentations from markdown experiment notes, following a concise,
-fact-first reporting style with consistent formatting and embedded visualizations.
+Convert markdown experiment records into styled PPTX. Portable across devices.
 
-## Script Path Resolution
+## Quick Start
 
-Scripts are bundled in the skill directory:
+```bash
+# Clone anywhere
+git clone <repo-url> ppt-report
+cd ppt-report
 
-- `$CODEX_HOME/skills/ppt-report/scripts/generate_ppt.py` — Main PPT generator
-- `$CODEX_HOME/skills/ppt-report/scripts/generate_chart.py` — Matplotlib chart generator
-- `$CODEX_HOME/skills/ppt-report/scripts/render_table.py` — Table-to-image renderer
+# Install deps (one-time)
+pip3 install python-pptx matplotlib numpy
 
-Always use absolute paths when calling these scripts. The skill root is
-`/Users/ypy/.codex/skills/ppt-report/`.
+# Generate PPT
+python3 scripts/generate_ppt.py -i experiments.md -o report.pptx
+```
 
-## Font Strategy (Matching Original PPTs)
+## How to Use
 
-| Role | Font Name | Source |
-|------|-----------|--------|
-| Latin body | `Anthropic Sans` | 7.2-ypy.pptx |
-| East Asian | `Microsoft YaHei` | 6.18-ypy.pptx |
-| Code | `Courier` | 6.18-ypy.pptx |
-| Title slides | `+mn-lt` (theme) | 6.18-ypy.pptx |
+Place your markdown experiment record anywhere, then:
 
-These are stored as font metadata in the PPTX. On devices without `Anthropic Sans`,
-PowerPoint/Keynote automatically substitutes. East Asian text uses `Microsoft YaHei`
-for Chinese readability on Windows/Mac.
+```bash
+python3 path/to/ppt-report/scripts/generate_ppt.py \
+  -i your_experiment.md \
+  -o report.pptx
+```
+
+Scripts resolve their own location via `__file__` — no hardcoded paths.
+All file references (images, charts) are resolved relative to the input markdown file,
+so you can keep everything in one folder.
+
+## Font Strategy (Cross-Device)
+
+| Role | Font | Strategy |
+|------|------|----------|
+| Latin text | `+mn-lt` | Theme major font — Calibri Light on Office, auto on others |
+| East Asian | `+mn-ea` | Theme EA font — DengXian/Yu Gothic on Office |
+| Code | `Courier New` | Available on every OS |
+
+The scripts use **PowerPoint theme fonts**, not hardcoded font names.
+When opened on any device, PowerPoint/Keynote uses its own theme fonts —
+no missing font warnings, consistent rendering.
+
+Charts (matplotlib) auto-detect the best available CJK font at runtime
+(PingFang on Mac, Microsoft YaHei on Windows, Noto on Linux).
 
 ## Style Guide
 
-### Language (copy the boss)
-- **No filler words**: never write "我们来看一下", "从图中可以看出", "这里展示的是"
+### Language
+- **No filler words**: don't write "我们来看一下", "从图中可以看出", "这里展示的是"
 - **Direct structure**: Model → Data → Train → Results → Analyze → Next
-- **Numbers first**: Lead every result slide with concrete metrics
-- **Short bullets**: One fact per line, max ~20 words
+- **Numbers first**: lead every result with concrete metrics, not vague statements
+- **Short bullets**: one fact per line, max ~20 words
 
 ### Slide Structure
 ```
 ┌─────────────────────────────────────┐
-│  Topic Title  (24pt, bold-ish)      │
-│  ─────────────────────────────────  │
-│  ● Main point (L1, 20pt)           │
-│  ○ Detail (L2, 18pt)               │
+│ Topic Title (24pt)                  │
+│ ─────────────────────────────────── │
+│ ● Main point (L1, 20pt)            │
+│ ○ Detail (L2, 18pt)                │
+│ ○ Detail                           │
 │                                     │
-│  [chart / result image]             │
+│ [chart / result image]              │
 └─────────────────────────────────────┘
 ```
 
-### PPT-Style Lists
-- L0 = section heading (no bullet, bold preferred)
-- L1 = filled circle ● (main facts)
-- L2 = hollow circle ○ (supporting detail)
-- Indentation and bullet char are set explicitly in the PPTX XML
-
-## Usage
-
-```bash
-python3 /Users/ypy/.codex/skills/ppt-report/scripts/generate_ppt.py \
-  --input experiment.md \
-  --output report.pptx
-
-# With custom title
-python3 .../generate_ppt.py -i exp.md -o r.pptx --title "7.2进度汇报"
-```
+### Bullet Levels
+| Markdown | PPT Level | Bullet |
+|----------|-----------|--------|
+| Plain text (no indent) | L0 | No bullet (section heading) |
+| `- text` or `  text` | L1 | ● filled circle |
+| `  - text` (2 spaces + dash) | L2 | ○ hollow circle |
 
 ## Markdown Format
 
 ```markdown
-# Title Slide Text
+# 7.2 人像多实例进度         ← 标题页（第一个 #）
 
-## Section Title (new slide)
+## 模型设计                  ← 新幻灯片
 
-### Sub-heading (renders as L0 bold heading on same slide)
+采用 Mask2Former（Swin-Large COCO instance 预训练）mmdet 框架
 
-Key metric: **mIoU@0.5 = 0.974** (bold = highlighted)
+在内部数据集 Seg_data_39528 上 fine-tune，40K iter
 
-- Bullet text (indent 0 → L1 bullet ●)
-  - Sub bullet (indent 4 → L2 bullet ○)
-    - Detail (indent 8 → L2 bullet ○)
+### 评测口径                 ← L0 粗体子标题（同一页内）
 
-![Visualization](path/to/image.png)
+- 预测实例与 GT 贪心匹配（IoU 0.5）
+  - 同时惩罚漏检与误检       ← 次级 bullet
 
-Code path: /home/notebook/code/REPRODUCE.md (renders in Courier)
+代码路径：/home/notebook/code/REPRODUCE.md  ← Courier 字体渲染
 
----
-(manual slide break)
+结果：**mIoU@0.5 = 0.974**  ← 粗体高亮关键数字
+
+![可视化]($SKILL_HOME/assets/result.png)  ← 嵌入图片
+
+---                          ← 手动分页
+
+## 后续计划
 ```
 
-## Dependency Setup
+## Dependencies
 
 ```bash
-pip3 install --break-system-packages python-pptx matplotlib numpy
+pip3 install python-pptx matplotlib numpy
 ```
 
 ## Chart Helper
 
 ```bash
-python3 .../generate_chart.py \
+python3 scripts/generate_chart.py \
   --type bar \
   --data "单人:0.974,多人:0.935,val_2q:0.930" \
   --output chart.png \
   --title "mIoU@0.5 对比"
 ```
 
-## Table Helper
+## Table Renderer
 
 ```bash
-python3 .../render_table.py \
-  --data "模型|mIoU\nA|0.97\nB|0.94" \
+python3 scripts/render_table.py \
+  --data "模型|mIoU|FPS\nA|0.97|30\nB|0.94|45" \
   --output table.png
 ```
