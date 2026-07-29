@@ -2,32 +2,52 @@
 
 把 Markdown 实验记录一键生成技术汇报 PPT。
 
-## 安装
+## AI Agent 自动安装
+
+以下步骤可供 AI 代理（Codex 等）自动执行：
 
 ```bash
-# 1. 克隆
-git clone <repo-url> ppt-report
-cd ppt-report
+# 步骤 1：克隆仓库
+git clone <repo-url> /tmp/ppt-report
 
-# 2. 安装依赖
+# 步骤 2：安装 Python 依赖
 pip3 install python-pptx matplotlib numpy
 
-# 3. 生成 PPT
-python3 scripts/generate_ppt.py -i experiments.md -o report.pptx [--presenter "姓名"]
+# 注意：如果遇到 --break-system-packages 错误，改用：
+# pip3 install --break-system-packages python-pptx matplotlib numpy
+
+# 步骤 3：验证安装
+python3 /tmp/ppt-report/scripts/generate_ppt.py --help
 ```
 
-> 如果遇到 `pip3 install` 权限问题，加 `--break-system-packages`。
+安装完成后即可生成 PPT：
+
+```bash
+python3 /tmp/ppt-report/scripts/generate_ppt.py \
+  -i experiments.md \
+  -o report.pptx \
+  --presenter "报告人"
+```
+
+## 安装（手动）
+
+```bash
+git clone <repo-url> ppt-report
+cd ppt-report
+pip3 install python-pptx matplotlib numpy
+```
+
+如果权限不足，加 `--break-system-packages`。
 
 ## 用法
 
 ```bash
-# 基本用法
 python3 scripts/generate_ppt.py -i 实验记录.md -o 汇报.pptx
 
-# 指定姓名
+# 带姓名
 python3 scripts/generate_ppt.py -i exp.md -o r.pptx --presenter "张三"
 
-# 覆盖主标题
+# 覆盖标题
 python3 scripts/generate_ppt.py -i exp.md -o r.pptx --title "7.2 阶段汇报"
 ```
 
@@ -61,7 +81,7 @@ python3 scripts/generate_ppt.py -i exp.md -o r.pptx --title "7.2 阶段汇报"
 | 写法 | 效果 |
 |------|------|
 | 无缩进文字 | 无 bullet（标题） |
-| `- 文字` 或 ` 文字` | ● 实心圆 |
+| `- 文字` | ● 实心圆 |
 | `  - 文字` | ○ 空心圆 |
 
 ### 特殊语法
