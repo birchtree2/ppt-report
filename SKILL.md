@@ -35,17 +35,20 @@ python3 scripts/generate_ppt.py -i experiments.md -o report.pptx
 python3 /path/to/ppt-report/scripts/generate_ppt.py -i my_exp.md -o my_report.pptx
 ```
 
-## 字体策略（跨设备兼容）
+## 字体策略（可编辑文字默认宋体）
 
-| 角色 | 字体名 | 说明 |
-|------|--------|------|
-| 英文字体 | `+mn-lt` | PowerPoint 主题字体，Calibri Light |
-| 中文字体 | `+mn-ea` | PowerPoint 主题东亚字体，Windows 上邓显/Mac 上苹方 |
-| 代码路径 | `Courier New` | 全平台通用 |
+除非用户明确指定其他字体，所有可编辑文字统一使用 **宋体**：标题、正文、数字、路径、表格、图表文字和演讲者备注。
+同时统一主题字体、母版、版式及默认文字样式，不只修改已有文字的 run。
+不能仅依赖 `+mn-lt` / `+mn-ea`：主题映射和直接格式不一致时，用户新增或续写文字可能变成另一种字体。
 
-使用 **PowerPoint 主题字体**，不是硬编码的具体字体名。PPT 在任何设备打开时，PowerPoint/Keynote 会自动使用当前主题的最合适字体，不会报缺字体。
+`scripts/generate_ppt.py` 默认使用宋体，并在保存前统一主题及文字样式。
+编辑已有 PPT 或用其他工具新增表格、图表后，也要检查字体继承；不要为改字体重新生成实验图片或改变数据。
 
-图表（matplotlib）运行时自动检测系统中最好的中文字体（Mac 上 PingFang、Windows 上 微软雅黑、Linux 上 Noto Sans CJK）。
+交付前检查正文续写、新建文本框、表格和备注的字体是否一致。
+接收设备需要安装宋体；缺失时可能发生替代，不能承诺所有设备自动同样显示。
+若无法实际打开 PowerPoint 验证，明确区分 XML/结构检查与实机编辑、渲染检查。
+
+图片中已栅格化的文字不能通过 PPT 字体设置修改。图表图片优先选宋体；系统未安装时说明使用了替代字体，不能将图片字体宣称为可编辑文字。
 
 ## 排版规范
 
@@ -91,7 +94,7 @@ python3 /path/to/ppt-report/scripts/generate_ppt.py -i my_exp.md -o my_report.pp
 - 预测实例与 GT 贪心匹配（IoU 0.5）
   - 同时惩罚漏检与误检       ← 次级 bullet
 
-代码路径：实验记录/实验记录.md  ← 自动 Courier 字体
+代码路径：实验记录/实验记录.md  ← 宋体小字号
 
 **Acc@0.5 = 0.974**         ← 粗体高亮关键数字
 

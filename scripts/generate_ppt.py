@@ -4,8 +4,7 @@ Generate styled PPTX from markdown experiment records.
 
 Portable design:
   - No hardcoded paths (scripts resolve via __file__)
-  - Theme fonts (+mn-lt / +mn-ea) delegate to PowerPoint's theme —
-    works on any device without specific font installation
+  - Editable text and theme defaults use 宋体; recipients need it installed
   - Bullet styles: ● L1 / ○ L2 (PowerPoint-native)
   - Matplotlib charts auto-detect CJK fonts
 
@@ -19,19 +18,16 @@ from pptx.util import Pt, Emu
 from pptx.dml.color import RGBColor
 from pptx.oxml.ns import qn
 from pptx.oxml import parse_xml
+from lxml import etree
 
 # ── Layout (16:9, matched to boss's template) ──
 SLIDE_W, SLIDE_H = 12192000, 6858000
 TITLE_L, TITLE_T, TITLE_W, TITLE_H = 838200, 365125, 10515600, 1325563
 BODY_L, BODY_T, BODY_W, BODY_H = 838200, 1825625, 10515600, 4351338
 
-# ── Fonts: use theme fonts for cross-device compatibility ──
-# +mn-lt = theme major Latin font (Calibri Light in Office)
-# +mn-ea = theme major East-Asian font (DengXian Light / Yu Gothic)
-# These let PowerPoint pick the right font on any device.
-LATIN_FONT = "+mn-lt"
-EA_FONT = "+mn-ea"
-CODE_FONT = "Courier New"
+LATIN_FONT = "宋体"
+EA_FONT = "宋体"
+CODE_FONT = "宋体"
 TEXT_COLOR = RGBColor(0x0A, 0x0A, 0x0A)
 SIZES = {0: Pt(24), 1: Pt(20), 2: Pt(18)}
 
@@ -67,7 +63,25 @@ def set_font(run, size=Pt(24), bold=False, latin=LATIN_FONT, ea=EA_FONT):
 
 def set_code_font(run):
     """Set code/reference font."""
-    set_font(run, Pt(14), latin=CODE_FONT, ea="")
+    set_font(run, Pt(14), latin=CODE_FONT, ea=EA_FONT)
+
+
+def set_default_fonts(prs):
+    drawing_ns = "http://schemas.openxmlformats.org/drawingml/2006/main"
+    for part in prs.part.package.iter_parts():
+        if not str(part.partname).startswith("/ppt/"):
+            continue
+        if hasattr(part, "_element"):
+            root = part._element
+        elif str(part.partname).startswith("/ppt/theme/"):
+            root = parse_xml(part.blob)
+        else:
+            continue
+        for element in root.iter():
+            if element.tag.startswith("{" + drawing_ns + "}") and "typeface" in element.attrib:
+                element.set("typeface", LATIN_FONT)
+        if not hasattr(part, "_element"):
+            part._blob = etree.tostring(root, xml_declaration=True, encoding="UTF-8", standalone=True)
 
 
 def set_bullet(para, level):
@@ -291,6 +305,7 @@ def main():
     prs = Presentation()
     prs.slide_width, prs.slide_height = SLIDE_W, SLIDE_H
     generate(slides, prs)
+    set_default_fonts(prs)
     prs.save(a.output)
     print(f"✓ {a.output} ({len(slides)} slides)")
 
